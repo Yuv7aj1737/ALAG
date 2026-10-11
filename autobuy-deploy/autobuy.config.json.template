@@ -1,0 +1,37 @@
+{
+  "autobuy": {
+    "enabled": true,
+    "monitoringInterval": 60000,
+    "blockchain": {
+      "network": "litecoin",
+      "api": {
+        "provider": "blockchair",
+        "apiKey": "PASTE_YOUR_API_KEY_HERE"
+      }
+    },
+    "wallet": {
+      "mnemonic": "PASTE_YOUR_24_WORDS_HERE",
+      "dbPath": "/root/mainbot/autobuy.db",
+      "currency": "LTC"
+    },
+    "payments": {
+      "minAmount": 0.0001,
+      "requiredConfirmations": 1,
+      "addressExpiry": 3600,
+      "webhook": {
+        "enabled": false,
+        "url": "",
+        "secret": ""
+      }
+    },
+    "discord": {
+      "notifyChannel": null,
+      "notifyRole": null,
+      "autoDeliver": true
+    },
+    "fees": {
+      "enabled": false,
+      "percentage": 0
+    }
+  }
+}

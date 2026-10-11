@@ -1,0 +1,56 @@
+{
+  "smtpHost": "127.0.0.1",
+  "tokens": [
+    "YOUR_BOT_TOKEN"
+  ],
+  "domains": [
+    "your-domain.com"
+  ],
+  "owners": [
+    "YOUR_DISCORD_ID"
+  ],
+  "novps": "",
+  "useproxy": true,
+  "proxy": [
+    "IP:PORT:USER:PASS",
+    "IP:PORT:USER:PASS",
+    "IP:PORT:USER:PASS",
+    "IP:PORT:USER:PASS",
+    "IP:PORT:USER:PASS",
+    "IP:PORT:USER:PASS",
+    "IP:PORT:USER:PASS",
+    "IP:PORT:USER:PASS",
+    "IP:PORT:USER:PASS",
+    "IP:PORT:USER:PASS"
+  ],
+  "discordServer": "https://discord.gg/YOUR_INVITE",
+  "authkey": "REPLACE_WITH_SHA256_SECRET",
+  "transcripts": "YOUR_TRANSCRIPTS_CHANNEL_ID",
+  "trial": "24h",
+  "jwtsecret": "REPLACE_WITH_RANDOM_HEX_SECRET",
+  "defaultpfp": "image url",
+  "botslotslink": "",
+  "notifierWebhook": "https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN",
+  "guildid": "YOUR_GUILD_ID",
+  "invitelogs": "YOUR_INVITE_LOGS_CHANNEL_ID",
+  "welcomechannel": "YOUR_WELCOME_CHANNEL_ID",
+  "leaderboard": "leaderboard channel id",
+  "log": "YOUR_LOG_CHANNEL_ID",
+  "footer1": "",
+  "shoplink": "https://discord.gg/YOUR_INVITE",
+  "roleid": "YOUR_ROLE_ID",
+  "memberrole": "YOUR_MEMBER_ROLE_ID",
+  "ip6": "",
+  "ip4": "",
+  "ticketcategory": "YOUR_TICKET_CATEGORY_ID",
+  "vpsip": "",
+  "vpsip2": "",
+  "externalserverurl": "https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN",
+  "externalApiKey": "",
+  "footer": {
+    "text": "@your-server",
+    "icon_url": "https://example.com/bot-icon.png"
+  },
+  "blockedEmails": [],
+  "ignoreEmails": []
+}

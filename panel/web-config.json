@@ -1,0 +1,9 @@
+{
+  "client_id": "YOUR_DISCORD_APP_CLIENT_ID",
+  "client_secret": "",
+  "bot_token": "",
+  "guild_id": "YOUR_GUILD_ID",
+  "require_guild": false,
+  "redirect_uri": "https://your-domain.com/auth/discord",
+  "owner_id": "YOUR_DISCORD_ID"
+}

@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MojangWho — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#04070d; --bg2:#080d15; --card:#0c121d; --card2:#0a0f18;
+  --border:#182433; --border2:#2a3d55;
+  --text:#eaf1f9; --muted:#8291a3; --dim:#5a6a7d;
+  --green:#3ce6a4; --blue:#4cc2ff; --violet:#a78bfa; --red:#fb6a6a; --amber:#fbbf24;
+  --grad:linear-gradient(120deg,#4cc2ff 0%,#3ce6a4 100%);
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  background:var(--bg); color:var(--text); font-family:'Inter',-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased; min-height:100vh;
+  background-image:
+    radial-gradient(900px 420px at 12% -5%, rgba(76,194,255,.09), transparent 65%),
+    radial-gradient(820px 420px at 88% 0%, rgba(60,230,164,.07), transparent 65%),
+    radial-gradient(1000px 600px at 50% 110%, rgba(167,139,250,.05), transparent 70%);
+  background-attachment:fixed;
+}
+::selection { background:rgba(46,224,138,.25); }
+input:-webkit-autofill { -webkit-box-shadow:0 0 0 60px var(--bg) inset; -webkit-text-fill-color:var(--text); }
+
+.wrap { max-width:1240px; margin:0 auto; padding:24px 26px 70px; }
+
+/* ---------- top nav ---------- */
+header.top {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 0 18px; gap:12px; flex-wrap:wrap;
+}
+.brand { display:flex; align-items:center; gap:11px; font-weight:700; font-size:15px; letter-spacing:.2px; }
+.brand small { color:var(--dim); font-weight:500; font-size:12.5px; margin-left:4px; }
+.navmark {
+  width:28px; height:28px; border-radius:8px; background:var(--grad);
+  display:flex; align-items:center; justify-content:center;
+  font-weight:800; font-size:13px; color:#04140c;
+  box-shadow:0 0 18px rgba(46,224,138,.3);
+}
+.topright { display:flex; align-items:center; gap:12px; }
+.userchip { display:flex; align-items:center; gap:10px; background:var(--card); border:1px solid var(--border); border-radius:100px; padding:5px 15px 5px 6px; }
+.userchip img { width:28px;height:28px;border-radius:50%; }
+.userchip .n { font-size:13px; font-weight:600; }
+.userchip button { background:none; border:none; color:var(--dim); cursor:pointer; font-size:12px; font-family:inherit; transition:.15s; }
+.userchip button:hover { color:var(--red); }
+
+/* ---------- section tabs ---------- */
+.tabs { display:flex; gap:6px; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:6px; margin-bottom:22px; overflow-x:auto; }
+.tabs a {
+  flex:1; text-align:center; white-space:nowrap; padding:10px 18px; border-radius:9px;
+  font-size:13.5px; font-weight:600; color:var(--muted); cursor:pointer; transition:.15s; text-decoration:none;
+}
+.tabs a:hover { color:var(--text); background:rgba(255,255,255,.03); }
+.tabs a.on {
+  background:linear-gradient(120deg, rgba(76,194,255,.13), rgba(60,230,164,.1));
+  color:var(--text); box-shadow:inset 0 0 0 1px rgba(76,194,255,.3);
+}
+.tabpane { display:none; }
+body[data-tab="overview"] #tab-overview,
+body[data-tab="deploy"] #tab-deploy,
+body[data-tab="purchase"] #tab-purchase,
+body[data-tab="admin"] #tab-admin { display:block; }
+
+/* ---------- status strip ---------- */
+.strip {
+  display:flex; align-items:center; gap:22px; flex-wrap:wrap;
+  background:linear-gradient(120deg, rgba(77,163,255,.05), rgba(46,224,138,.04));
+  border:1px solid var(--border); border-radius:16px; padding:16px 22px; margin-bottom:22px;
+}
+.strip .runbadge { display:inline-flex; align-items:center; gap:9px; font-weight:700; font-size:13.5px; letter-spacing:.4px; }
+.pulse { width:8px; height:8px; border-radius:50%; }
+.pulse.on { background:var(--green); box-shadow:0 0 12px var(--green); animation:pulse 1.8s infinite; }
+.pulse.off { background:var(--red); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+.strip .stats { display:flex; gap:30px; margin-left:auto; flex-wrap:wrap; }
+.strip .st { text-align:right; }
+.strip .st .v { font-size:20px; font-weight:800; }
+.strip .st .l { font-size:10px; letter-spacing:1.5px; color:var(--dim); text-transform:uppercase; }
+.strip .ctrl { display:flex; gap:10px; }
+
+/* ---------- buttons ---------- */
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  padding:10px 20px; border-radius:10px; font-size:13.5px; font-weight:600; cursor:pointer;
+  border:1px solid transparent; font-family:inherit; transition:.18s;
+}
+.btn-p { background:linear-gradient(120deg,#4da3ff,#2ee08a); color:#04140c; width:100%; margin-top:14px; font-weight:700; }
+.btn-p:hover { filter:brightness(1.12); box-shadow:0 6px 24px rgba(46,224,138,.2); }
+.btn-go { background:rgba(46,224,138,.12); color:var(--green); border-color:rgba(46,224,138,.35); }
+.btn-go:hover { background:rgba(46,224,138,.22); }
+.btn-stop { background:rgba(255,93,93,.1); color:var(--red); border-color:rgba(255,93,93,.3); }
+.btn-stop:hover { background:rgba(255,93,93,.2); }
+.btn-x { background:none; border:1px solid var(--border2); color:var(--red); padding:4px 11px; font-size:11px; border-radius:8px; cursor:pointer; font-family:inherit; transition:.15s; }
+.btn-x:hover { border-color:var(--red); background:rgba(255,93,93,.08); }
+.btn-buy { background:linear-gradient(120deg,#4da3ff,#2ee08a); color:#04140c; width:100%; margin-top:16px; font-weight:700; }
+.btn-buy:hover { filter:brightness(1.12); box-shadow:0 6px 24px rgba(46,224,138,.22); }
+.btn-dm { background:rgba(77,163,255,.1); color:var(--blue); border-color:rgba(77,163,255,.3); width:100%; margin-top:8px; }
+.btn-dm:hover { background:rgba(77,163,255,.2); }
+
+/* ---------- grid & cards ---------- */
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(370px,1fr)); gap:16px; }
+@media (max-width:420px){ .grid { grid-template-columns:1fr; } }
+.card {
+  background:linear-gradient(180deg,var(--card),var(--card2));
+  border:1px solid var(--border); border-radius:16px; padding:22px;
+  box-shadow:0 1px 0 rgba(255,255,255,.03) inset, 0 10px 30px rgba(0,0,0,.25);
+  transition:border-color .2s, transform .2s, box-shadow .2s;
+}
+.card:hover { border-color:var(--border2); transform:translateY(-2px); box-shadow:0 14px 40px rgba(0,0,0,.35); }
+.card h2 {
+  font-size:13px; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; gap:8px;
+  letter-spacing:.3px;
+}
+.card h2 .ico { margin-right:8px; }
+.card h2 .sub { font-weight:400; font-size:11px; color:var(--dim); }
+.mini { font-size:11px; font-weight:700; letter-spacing:.6px; padding:3px 10px; border-radius:100px; }
+.mini.on { background:rgba(46,224,138,.12); color:var(--green); border:1px solid rgba(46,224,138,.3); }
+.mini.off { background:rgba(255,93,93,.1); color:var(--red); border:1px solid rgba(255,93,93,.25); }
+.mini.vi { background:rgba(157,123,255,.12); color:var(--violet); border:1px solid rgba(157,123,255,.3); }
+
+label { display:block; font-size:11px; color:var(--muted); margin:12px 0 5px; letter-spacing:.3px; }
+label b { color:var(--text); font-weight:600; }
+input, textarea, select {
+  width:100%; background:var(--bg); border:1px solid var(--border2); color:var(--text);
+  border-radius:10px; padding:10px 13px; font-size:13px; font-family:inherit; outline:none; transition:.15s;
+}
+input:focus, textarea:focus, select:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(77,163,255,.12); }
+select { cursor:pointer; appearance:auto; }
+select optgroup { background:var(--card); color:var(--muted); font-style:normal; }
+select option { background:var(--card); color:var(--text); }
+textarea { resize:vertical; min-height:84px; line-height:1.7; }
+textarea.mono, input.mono { font-family:'JetBrains Mono',monospace; font-size:12px; }
+.hint { font-size:11px; color:var(--dim); margin-top:7px; line-height:1.6; }
+.checks { display:flex; gap:18px; margin-top:12px; flex-wrap:wrap; }
+.checks label { display:flex; align-items:center; gap:8px; margin:0; font-size:13px; color:var(--text); cursor:pointer; }
+.checks input { width:auto; accent-color:var(--green); }
+.two { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+@media (max-width:520px){ .two{grid-template-columns:1fr;} }
+
+/* ---------- server picker ---------- */
+.srvpick select { height:auto; min-height:0; padding:6px; }
+.srvpick select option { padding:8px 12px; border-radius:8px; margin:2px 4px; cursor:pointer; }
+.srvpick select option:checked { background:linear-gradient(120deg, rgba(76,194,255,.25), rgba(60,230,164,.2)); }
+.srvpick select option:hover { background:rgba(76,194,255,.08); }
+.srvpick select optgroup { font-weight:700; color:var(--blue); }
+.srvpick select option[hidden] { display:none; }
+#srvFilter { margin-bottom:8px; }
+
+/* ---------- account rows ---------- */
+.acc { display:flex; align-items:center; gap:11px; background:var(--bg); border:1px solid var(--border); border-radius:11px; padding:10px 14px; margin-bottom:8px; transition:.15s; }
+.acc:hover { border-color:var(--border2); }
+.dot { width:8px; height:8px; border-radius:50%; background:#3a4450; flex-shrink:0; }
+.dot.on { background:var(--green); box-shadow:0 0 8px rgba(46,224,138,.8); }
+.acc .ign { font-weight:600; font-size:13px; flex:1; font-family:'JetBrains Mono',monospace; font-size:12.5px; }
+.acc .meta { font-size:11px; color:var(--muted); }
+.empty { color:var(--dim); font-size:12.5px; text-align:center; padding:18px 0; }
+
+/* ---------- kv ---------- */
+.kv { display:flex; justify-content:space-between; font-size:13px; padding:9px 0; border-bottom:1px solid var(--border); }
+.kv:last-child { border:none; }
+.kv .k { color:var(--muted); }
+.kv .v { font-weight:600; }
+.kv .v.on { color:var(--green); }
+
+/* ---------- console ---------- */
+.logbox {
+  background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:14px 16px;
+  height:300px; overflow-y:auto; font-family:'JetBrains Mono',monospace; font-size:11.5px; line-height:2;
+}
+.logbox::-webkit-scrollbar { width:8px; }
+.logbox::-webkit-scrollbar-thumb { background:var(--border2); border-radius:4px; }
+.logbox .t { color:var(--dim); margin-right:10px; }
+.logbox .mu { color:var(--muted); }
+.logbox .sent { color:var(--green); }
+.logbox .trig { color:var(--violet); }
+.logbox .kick { color:var(--red); }
+.logbox .join { color:var(--blue); }
+
+/* ---------- license ---------- */
+.licstat { display:flex; align-items:center; gap:9px; }
+.licstat .dot2 { width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 10px var(--green); }
+
+/* ---------- purchase ---------- */
+.plans { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:16px; margin-bottom:16px; }
+.plan {
+  position:relative; display:flex; flex-direction:column;
+  background:linear-gradient(180deg,var(--card),var(--card2));
+  border:1px solid var(--border); border-radius:18px; padding:26px 22px;
+  transition:.2s;
+}
+.plan:hover { transform:translateY(-3px); box-shadow:0 16px 40px rgba(0,0,0,.4); border-color:var(--border2); }
+.plan.pop { border-color:rgba(46,224,138,.45); box-shadow:0 0 32px rgba(46,224,138,.08); }
+.plan .ptag {
+  position:absolute; top:-11px; left:50%; transform:translateX(-50%);
+  font-size:9.5px; font-weight:800; letter-spacing:1.2px; padding:4px 12px; border-radius:100px;
+  background:var(--grad); color:#04140c;
+}
+.plan h3 { font-size:14px; margin-bottom:10px; }
+.plan .price { font-size:34px; font-weight:800; letter-spacing:-1px; }
+.plan .period { font-size:12px; color:var(--dim); margin-bottom:14px; }
+.plan ul { list-style:none; flex:1; }
+.plan li { font-size:12.5px; color:var(--muted); padding:5px 0 5px 22px; position:relative; line-height:1.5; }
+.plan li::before { content:'✓'; position:absolute; left:0; color:var(--green); font-weight:700; }
+.licbox {
+  background:linear-gradient(120deg, rgba(157,123,255,.06), rgba(77,163,255,.05));
+  border:1px solid var(--border); border-radius:16px; padding:22px;
+}
+.licbox .row { display:flex; gap:10px; align-items:stretch; flex-wrap:wrap; }
+.licbox input { flex:1; min-width:220px; }
+.licbox .btn { flex-shrink:0; }
+
+/* ---------- toast ---------- */
+#toast {
+  position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(90px);
+  background:var(--card); border:1px solid var(--green); color:var(--text);
+  padding:11px 22px; border-radius:12px; font-size:13px; opacity:0; transition:.25s; z-index:50; max-width:90vw;
+  box-shadow:0 12px 40px rgba(0,0,0,.5);
+}
+#toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+#toast.err { border-color:var(--red); }
+
+.owner-only { display:none; }
+body.is-owner .owner-only { display:block; }
+.tab-admin { display:none; }
+body.is-owner[data-tab="admin"] .tab-admin { display:block; }
+
+/* view-only (no license) mode */
+.licbar {
+  display:none; align-items:center; gap:10px; flex-wrap:wrap;
+  background:rgba(227,179,65,.07); border:1px solid rgba(227,179,65,.35);
+  border-radius:12px; padding:12px 18px; margin-bottom:18px;
+  font-size:13px; color:#e3b341; line-height:1.6;
+}
+.licbar a { color:#e3b341; text-decoration:underline; cursor:pointer; }
+body.no-lic .licbar { display:flex; }
+body.no-lic .lockable input, body.no-lic .lockable textarea, body.no-lic .lockable select,
+body.no-lic .lockable .btn, body.no-lic .lockable .btn-x { opacity:.45; }
+body.no-lic[data-tab="deploy"] .licbar button.golink { display:none; }
+footer { text-align:center; color:var(--dim); font-size:12px; margin-top:40px; }
+footer a { color:var(--blue); text-decoration:none; }
+</style>
+</head>
+<body data-tab="overview">
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><div class="navmark">M</div> MojangWho <small>adbot console</small></div>
+    <div class="topright">
+      <a class="btn" style="padding:7px 16px;font-size:12.5px;background:var(--card);border:1px solid var(--border);color:var(--muted);" href="/">← Home</a>
+      <div class="userchip"><img id="avatar" alt=""><span class="n" id="uname"></span><button onclick="logout()" class="btn-logout">logout</button></div>
+    </div>
+  </header>
+
+  <!-- section tabs -->
+  <nav class="tabs">
+    <a data-t="overview" onclick="showTab('overview')">🏠 Home</a>
+    <a data-t="deploy" onclick="showTab('deploy')">🚀 Deploy Bots</a>
+    <a data-t="purchase" onclick="showTab('purchase')">🛒 Purchase</a>
+    <a data-t="admin" class="owner-only" onclick="showTab('admin')">🔑 Admin</a>
+  </nav>
+
+  <!-- view-only banner (shown when no active license) -->
+  <div class="licbar" id="licbar">🔒 View-only mode — no active license. <a onclick="showTab('purchase')">Buy or redeem a key on the Purchase tab</a> to unlock the controls. <a href="/auth/discord">re-check license</a></div>
+
+  <!-- ==================== OVERVIEW ==================== -->
+  <div class="tabpane" id="tab-overview">
+    <div class="strip">
+      <span class="runbadge"><span class="pulse off" id="pulse"></span><span id="runTxt">OFFLINE</span></span>
+      <div class="stats">
+        <div class="st"><div class="v" id="stBots">0</div><div class="l">connected</div></div>
+        <div class="st"><div class="v" id="stAccs">0</div><div class="l">accounts</div></div>
+        <div class="st"><div class="v" id="stSent">0</div><div class="l">msgs sent</div></div>
+        <div class="st"><div class="v" id="stDM">0</div><div class="l">auto-dms</div></div>
+      </div>
+      <div class="ctrl lockable">
+        <button class="btn btn-go" onclick="ad('/api/web/adbot/start',{})">▶ Start All</button>
+        <button class="btn btn-stop" onclick="ad('/api/web/adbot/stop',{})">■ Stop All</button>
+        <button class="btn" style="background:#2d333b;color:#e6edf3;border:1px solid #444c56" onclick="restartBot()">⟳ Restart Bot</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2><span><span class="ico">🎫</span>License</span></h2>
+        <div class="kv"><span class="k">Status</span><span class="v on licstat" id="licStat"><span class="dot2"></span> ACTIVE</span></div>
+        <div class="kv"><span class="k">Discord</span><span class="v" id="licUser">—</span></div>
+        <div class="kv"><span class="k">Expires</span><span class="v" id="licExp">—</span></div>
+        <div class="hint" style="margin-top:14px;">Access is tied to your Discord account + license. Need more time? Head to the <a style="color:var(--blue);cursor:pointer" onclick="showTab('purchase')">Purchase</a> tab.</div>
+      </div>
+
+      <div class="card">
+        <h2><span><span class="ico">⚡</span>Quick actions</span></h2>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <button class="btn btn-go lockable" onclick="showTab('deploy');setTimeout(()=>document.getElementById('ssidInput').focus(),100)">+ Add a bot</button>
+          <button class="btn lockable" style="background:#2d333b;color:#e6edf3;border:1px solid #444c56" onclick="showTab('deploy')">✏️ Edit campaign / triggers / proxies</button>
+          <button class="btn" style="background:#2d333b;color:#e6edf3;border:1px solid #444c56" onclick="showTab('purchase')">🛒 Buy or redeem a license</button>
+        </div>
+      </div>
+
+      <div class="card" style="grid-column:1/-1;">
+        <h2><span><span class="ico">📡</span>Live Console</span><span class="sub">last 100 events · auto-refresh</span></h2>
+        <div class="logbox" id="logBox"><div class="mu">waiting for events…</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== DEPLOY ==================== -->
+  <div class="tabpane" id="tab-deploy">
+    <div class="grid lockable">
+      <!-- Bots -->
+      <div class="card">
+        <h2><span><span class="ico">🤖</span>Bots <span class="sub" id="accCount"></span></span></h2>
+        <div id="accList"><div class="empty">loading…</div></div>
+        <label>Session ID (SSID) — add as many bots as you want</label>
+        <input id="ssidInput" class="mono" placeholder="Paste Minecraft session ID" autocomplete="off">
+        <button class="btn btn-p" onclick="addAccount()">+ Add Bot</button>
+      </div>
+
+      <!-- Campaign -->
+      <div class="card">
+        <h2><span><span class="ico">📢</span>Campaign <span class="sub">· auto messages</span></span><span class="sub">rotation</span></h2>
+        <div class="srvpick">
+          <input id="srvFilter" placeholder="🔍  Search server or region…" autocomplete="off">
+          <select id="cHostPick" size="6" onchange="pickHost()">
+            <optgroup label="MCPvP">
+              <option value="mcpvp.com"> MCPvP · Main (Global)</option>
+              <option value="mcpvp.club"> MCPvP · NA (Global)</option>
+              <option value="eu.mcpvp.club"> MCPvP · Europe</option>
+              <option value="as.mcpvp.club"> MCPvP · Asia</option>
+              <option value="au.mcpvp.club"> MCPvP · Australia</option>
+            </optgroup>
+            <optgroup label="CatPvP">
+              <option value="catpvp.xyz"> CatPvP · US Main</option>
+              <option value="eu.catpvp.xyz"> CatPvP · Europe</option>
+              <option value="east.catpvp.xyz"> CatPvP · US East</option>
+              <option value="as.catpvp.xyz"> CatPvP · Asia</option>
+              <option value="au.catpvp.xyz"> CatPvP · Australia</option>
+            </optgroup>
+            <optgroup label="Minemen Club">
+              <option value="minemen.club"> Minemen · Global</option>
+              <option value="eu.minemen.club"> Minemen · Europe</option>
+              <option value="as.minemen.club"> Minemen · Asia</option>
+            </optgroup>
+            <optgroup label="More PvP">
+              <option value="play.hypixel.net"> Hypixel</option>
+              <option value="flowpvp.gg"> FlowPvP</option>
+              <option value="jartexnetwork.com"> JartexNetwork</option>
+              <option value="moxmc.com"> MoxMC</option>
+              <option value="pvpparadise.net"> PvP Paradise (India)</option>
+              <option value="play.donutsmp.net"> DonutSMP</option>
+            </optgroup>
+          </select>
+          <div class="hint" style="margin:2px 0 0;">All listed regions verified joinable. Or type any custom host below — SRV is auto-detected.</div>
+        </div>
+        <label>Custom host</label>
+        <input id="cHost" class="mono" placeholder="play.yourserver.net">
+        <label>Messages — <b>one per line</b>, sent line-by-line in rotation</label>
+        <textarea id="cMsgs" placeholder="666 to join unstable smp&#10;join unstable smp now!!&#10;unstable smp free to join"></textarea>
+        <div class="two">
+          <div><label>Interval (seconds, min 5)</label><input id="cInt" type="number" min="5" value="30"></div>
+          <div style="display:flex;align-items:end;padding-bottom:4px;"><div class="checks" style="width:100%;">
+            <label><input type="checkbox" id="cRandom"> Shuffle order</label>
+          </div></div>
+        </div>
+        <button class="btn btn-p" onclick="saveCampaign()">Save Campaign</button>
+      </div>
+
+      <!-- Trigger -->
+      <div class="card">
+        <h2><span><span class="ico">🎯</span>Chat Trigger <span class="sub">· auto DM</span></span><span class="mini off" id="trigMini">OFF</span></h2>
+        <div class="two">
+          <div><label>Trigger keyword(s) — comma separated</label><input id="tKw" placeholder="666"></div>
+          <div><label>Cooldown per player (seconds)</label><input id="tCd" type="number" min="5" value="60"></div>
+        </div>
+        <label>What the bot DMs the triggered player</label>
+        <textarea id="tMsg" style="min-height:60px;" placeholder="msg me in discord my username is {discord}"></textarea>
+        <div class="hint">The bot auto-detects the whisper command — it tries <b>/msg</b> first and switches to <b>/tell</b> if the server uses it. <b>{discord}</b> = your Discord username (filled automatically).</div>
+        <button class="btn btn-p" onclick="saveTrigger()">Save Trigger</button>
+      </div>
+
+      <!-- Proxies -->
+      <div class="card">
+        <h2><span><span class="ico">🛰️</span>Proxies <span class="sub">· one per line</span></span></h2>
+        <div class="checks" style="margin:0 0 4px;">
+          <label><input type="checkbox" id="pUse"> Route bots through proxies</label>
+          <label><input type="checkbox" id="pOwn"> Use my own list</label>
+        </div>
+        <label>Your proxy list</label>
+        <textarea id="pList" class="mono" placeholder="51.15.2.4:9050:user1:pass1&#10;51.15.2.5:9050:user2:pass2&#10;http://user:pass@185.33.1.7:8080"></textarea>
+        <div class="hint">Formats: <b>ip:port:user:pass</b> · <b>ip:port</b> · <b>http://user:pass@ip:port</b>. Own list off = built-in pool. Each bot gets its own proxy round-robin.</div>
+        <button class="btn btn-p" onclick="saveProxies()">Save Proxies</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== PURCHASE ==================== -->
+  <div class="tabpane" id="tab-purchase">
+    <div class="plans" id="planList"><div class="empty" style="grid-column:1/-1;">loading plans…</div></div>
+
+    <div class="licbox">
+      <h2 style="font-size:13px;margin-bottom:6px;"><span class="ico">🎟️</span>Redeem a license key</h2>
+      <p style="font-size:12.5px;color:var(--muted);line-height:1.7;">Got a key from the owner? Paste it below — it binds to your Discord account and stacks time on top of your current plan.</p>
+      <div class="row" style="margin-top:14px;">
+        <input id="redeemKey" class="mono" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" autocomplete="off">
+        <button class="btn btn-buy" style="width:auto;margin:0;" onclick="redeem()">Redeem</button>
+      </div>
+      <div class="hint">Already active? Your current license: <b id="myLicTxt" style="color:var(--green)">—</b></div>
+    </div>
+  </div>
+
+  <!-- ==================== ADMIN ==================== -->
+  <div class="tabpane tab-admin" id="tab-admin">
+    <div class="grid owner-only">
+      <div class="card">
+        <h2><span><span class="ico">🔑</span>License Manager</span><span class="mini vi">OWNER</span></h2>
+        <div style="display:flex;gap:10px;align-items:end;">
+          <div style="flex:1;"><label>Duration (days)</label><input id="licDays" type="number" min="0.1" step="0.1" value="30"></div>
+          <div style="flex:1;"><label>Count</label><input id="licCount" type="number" min="1" max="50" value="1"></div>
+          <button class="btn btn-go" style="flex:0;margin-bottom:2px;" onclick="createLicense()">Create</button>
+        </div>
+        <label>Available keys</label>
+        <div id="keyList" style="max-height:170px;overflow:auto;"><div class="empty">—</div></div>
+        <label style="margin-top:12px;">Active subscriptions</label>
+        <div id="usedList" style="max-height:170px;overflow:auto;"><div class="empty">—</div></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>your-domain.com · <a href="/panel/">owner panel</a></footer>
+</div>
+<div id="toast"></div>
+
+<script>
+function toast(m, err){ const t=document.getElementById('toast'); t.textContent=m; t.className=err?'err show':'show'; setTimeout(()=>t.className='',3000); }
+async function api(u, opt){ const r=await fetch(u,opt); if(r.status===401){location.href='/';throw 0;} const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.error||('http '+r.status)); return j; }
+function logout(){ fetch('/api/web/logout',{method:'POST'}).then(()=>location.href='/'); }
+function esc(s){ return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// ---- section tabs ----
+function showTab(name){
+  if(name==='admin' && !(window.ME && ME.owner)) name='overview';
+  document.body.setAttribute('data-tab', name);
+  document.querySelectorAll('.tabs a').forEach(a=>a.classList.toggle('on', a.dataset.t===name));
+  if(location.hash!=='#'+name) history.replaceState(null,'','#'+name);
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('.tabs a').forEach(a=>{ if(a.classList.contains('on')===false) a.classList.remove('on'); });
+
+let ME=null, SUPPORT='';
+(async()=>{
+  try { ME=await api('/api/web/me'); } catch(e){ return; }
+  window.ME = ME;
+  if(ME.owner) document.body.classList.add('is-owner');
+  document.getElementById('uname').textContent=ME.username;
+  document.getElementById('licUser').textContent=ME.username;
+  document.getElementById('avatar').src=ME.avatar
+    ? 'https://cdn.discordapp.com/avatars/'+ME.id+'/'+ME.avatar+'.png?size=64'
+    : 'https://cdn.discordapp.com/embed/avatars/0.png';
+  document.getElementById('licExp').textContent=ME.expiry?new Date(ME.expiry).toLocaleString():'—';
+
+  // no license -> view-only: banner + lock deploy controls (server still enforces it)
+  if(!ME.licensed){
+    document.body.classList.add('no-lic');
+    if(ME.expired) document.getElementById('licbar').innerHTML='⏰ Your license expired — dashboard is view-only. Redeem or buy a new key on the <a onclick="showTab(\'purchase\')">Purchase tab</a>. <a href="/auth/discord">re-check license</a>';
+    document.querySelectorAll('.lockable input, .lockable textarea, .lockable select, .lockable .btn, .lockable .btn-x')
+      .forEach(el=>{ if(!el.classList.contains('btn-logout')) el.disabled=true; });
+    const st=document.getElementById('licStat');
+    st.className='v licstat';
+    st.innerHTML='<span class="dot2" style="background:var(--red);box-shadow:0 0 10px var(--red)"></span> '+(ME.expired?'EXPIRED':'NO LICENSE');
+  }
+
+  // land on the requested tab (hash), else overview
+  const h=(location.hash||'#overview').slice(1);
+  showTab(['overview','deploy','purchase','admin'].includes(h)?h:'overview');
+
+  loadStatus(); loadLicenses(); loadPurchase();
+  setInterval(loadStatus, 5000);
+})();
+
+// ---- purchase tab ----
+async function loadPurchase(){
+  try {
+    const d=await api('/api/web/plans');
+    SUPPORT=d.support||SUPPORT;
+    document.getElementById('planList').innerHTML=d.plans.map(p=>`
+      <div class="plan${p.tag==='POPULAR'?' pop':''}">
+        ${p.tag?`<div class="ptag">${esc(p.tag)}</div>`:''}
+        <h3>${esc(p.name)}</h3>
+        <div class="price">${esc(p.price)}</div>
+        <div class="period">${esc(p.period)}</div>
+        <ul>${(p.features||[]).map(f=>`<li>${esc(f)}</li>`).join('')}</ul>
+        <a class="btn btn-buy" href="${SUPPORT?esc(SUPPORT):'#'}" target="_blank" rel="noopener">Buy — DM owner</a>
+      </div>`).join('');
+  } catch(e){ document.getElementById('planList').innerHTML='<div class="empty" style="grid-column:1/-1;">Could not load plans.</div>'; }
+  try {
+    const m=await api('/api/web/mylicense');
+    document.getElementById('myLicTxt').textContent=m.license
+      ? `${m.license.license} · expires ${m.license.expiry?new Date(parseInt(m.license.expiry)).toLocaleString():'—'}`
+      : 'none yet';
+  } catch(e){}
+}
+async function redeem(){
+  const key=document.getElementById('redeemKey').value.trim();
+  if(!key) return toast('Paste a license key first',true);
+  try {
+    const r=await api('/api/web/redeem',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({license:key})});
+    if(r.ok){
+      toast('License activated ✓ — welcome aboard!');
+      document.getElementById('redeemKey').value='';
+      setTimeout(()=>location.reload(),1200);
+    } else toast(String(r.error||'Redeem failed'),true);
+  } catch(e){ toast(String(e.message||e),true); }
+}
+document.getElementById('redeemKey').addEventListener('keydown',e=>{ if(e.key==='Enter') redeem(); });
+
+let statusLoaded=false;
+async function loadStatus(){
+  try {
+    const s=await api('/api/web/adbot/status');
+    const on=!!s.running;
+    document.getElementById('pulse').className='pulse '+(on?'on':'off');
+    document.getElementById('runTxt').textContent=on?'RUNNING':'OFFLINE';
+    document.getElementById('runTxt').style.color=on?'var(--green)':'var(--muted)';
+    document.getElementById('stBots').textContent=s.connectedBots??0;
+    document.getElementById('stAccs').textContent=(s.accounts||[]).length;
+    document.getElementById('stSent').textContent=(s.accounts||[]).reduce((n,a)=>n+(a.messagesSent||0),0);
+    document.getElementById('stDM').textContent=(s.accounts||[]).reduce((n,a)=>n+(a.dmCount||0),0);
+    const c=s.campaign||{};
+
+    const tm=document.getElementById('trigMini');
+    const trigOn=!!(c.triggerKeyword&&(c.triggerMessage||''));
+    tm.textContent=trigOn?'ARMED':'OFF';
+    tm.className='mini '+(trigOn?'on':'off');
+
+    if(!statusLoaded){
+      statusLoaded=true;
+      document.getElementById('cHost').value=c.host||'';
+      syncHostPick(c.host||'');
+      document.getElementById('cInt').value=c.intervalMs?Math.round(c.intervalMs/1000):30;
+      document.getElementById('cRandom').checked=!!c.randomOrder;
+      document.getElementById('cMsgs').value=(c.messages||[]).join('\n');
+      document.getElementById('pUse').checked=!!c.useProxies;
+      document.getElementById('pOwn').checked=!!c.useOwnProxies;
+      document.getElementById('pList').value=c.proxiesText||'';
+      document.getElementById('tKw').value=c.triggerKeyword||'';
+      document.getElementById('tCd').value=c.triggerCooldownMs?Math.round(c.triggerCooldownMs/1000):60;
+      document.getElementById('tMsg').value=c.triggerMessage||'';
+    }
+
+    const list=document.getElementById('accList');
+    const accs=s.accounts||[];
+    document.getElementById('accCount').textContent=accs.length?accs.length+' bot(s)':'';
+    list.innerHTML=accs.length?accs.map(a=>`
+      <div class="acc"><span class="dot ${a.online?'on':''}"></span>
+      <span class="ign">${esc(a.ign)}</span>
+      <span class="meta">${a.online?a.messagesSent+' msgs · '+a.dmCount+' dms':(a.lastError?esc(a.lastError):'offline')}</span>
+      <button class="btn-x" onclick="rmAccount('${esc(a.ign)}')">remove</button></div>`).join('')
+      :'<div class="empty">No bots yet — add one below.</div>';
+
+    const log=document.getElementById('logBox');
+    if(s.log && s.log.length){
+      log.innerHTML=s.log.slice().reverse().map(l=>{
+        let cls='mu';
+        if(l.text.startsWith('[sent]')) cls='sent';
+        else if(l.text.startsWith('[trigger]')) cls='trig';
+        else if(l.text.startsWith('<<<')) cls='kick';
+        else if(l.text.startsWith('>>>')) cls='join';
+        const time=new Date(l.ts).toLocaleTimeString();
+        return `<div><span class="t">[${time}] ${esc(l.ign)}:</span> <span class="${cls}">${esc(l.text)}</span></div>`;
+      }).join('');
+    } else log.innerHTML='<div class="mu">waiting for events…</div>';
+  } catch(e){ if(e.message) toast(e.message,true); }
+}
+
+async function ad(u, body){
+  if(ME && !ME.licensed) return toast('View-only — buy or redeem a license on the Purchase tab', true);
+  try {
+    const r=await api(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    toast(r.ok===false ? String(r.error||'failed') : (r.message||'Done ✓'), r.ok===false);
+    setTimeout(loadStatus,600); return r;
+  } catch(e){ toast(String(e.message||e),true); }
+}
+async function addAccount(){
+  const ssid=document.getElementById('ssidInput').value.trim();
+  if(!ssid) return toast('Paste an SSID first',true);
+  document.getElementById('ssidInput').value='';
+  await ad('/api/web/adbot/account',{ssid});
+}
+async function rmAccount(ign){ await ad('/api/web/adbot/account/remove',{ign}); }
+async function restartBot(){
+  if(ME && !ME.licensed) return toast('View-only — buy or redeem a license on the Purchase tab', true);
+  if(!confirm('Restart the bot process? All adbots drop — press Start All again once it is back (±10s).')) return;
+  toast('Restarting bot process…');
+  try {
+    const r=await api('/api/web/adbot/restart',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+    if(r&&r.ok){ toast('Restarted ✓ — press ▶ Start All when it is back (±10s)'); setTimeout(loadStatus,10000); }
+    else toast(String(r&&r.error||'Restart failed'),true);
+  } catch(e){ toast(String(e.message||e),true); }
+}
+
+function pickHost(){
+  const v=document.getElementById('cHostPick').value;
+  if(v) document.getElementById('cHost').value=v;
+}
+function syncHostPick(host){
+  const sel=document.getElementById('cHostPick');
+  sel.value=[...sel.options].some(o=>o.value&&o.value===host)?host:'';
+}
+
+// live filter for the server picker
+function filterServers(){
+  const q=document.getElementById('srvFilter').value.trim().toLowerCase();
+  const sel=document.getElementById('cHostPick');
+  [...sel.querySelectorAll('optgroup')].forEach(g=>{
+    let visible=0;
+    [...g.querySelectorAll('option')].forEach(o=>{
+      const hit=!q||o.textContent.toLowerCase().includes(q)||o.value.toLowerCase().includes(q);
+      o.hidden=!hit; if(hit) visible++;
+    });
+    g.hidden=visible===0;
+  });
+  [...sel.options].forEach(o=>{ if(o.parentElement===sel){ o.hidden=!!q&&!o.textContent.toLowerCase().includes(q)&&!o.value.toLowerCase().includes(q); } });
+}
+document.addEventListener('DOMContentLoaded',()=>{ document.getElementById('srvFilter').addEventListener('input',filterServers); });
+
+async function saveCampaign(){
+  const msgs=document.getElementById('cMsgs').value.split('\n').map(m=>m.trim()).filter(Boolean);
+  if(!msgs.length) return toast('Add at least one message',true);
+  await ad('/api/web/adbot/campaign',{
+    host:document.getElementById('cHost').value.trim(),
+    messages:msgs,
+    intervalMs:Math.max(5,parseInt(document.getElementById('cInt').value)||30)*1000,
+    randomOrder:document.getElementById('cRandom').checked
+  });
+  toast('Campaign saved ✓');
+}
+async function saveTrigger(){
+  let msg=document.getElementById('tMsg').value.trim();
+  const kw=document.getElementById('tKw').value.trim();
+  if(!kw || !msg) return toast('Keyword + DM message both needed',true);
+  if(ME && ME.username) msg=msg.replaceAll('{discord}',ME.username);
+  await ad('/api/web/adbot/campaign',{
+    triggerKeyword:kw,
+    triggerMessage:msg,
+    triggerCooldownMs:Math.max(5,parseInt(document.getElementById('tCd').value)||60)*1000
+  });
+  toast('Trigger saved ✓ (always on)');
+}
+async function saveProxies(){
+  await ad('/api/web/adbot/campaign',{
+    useProxies:document.getElementById('pUse').checked,
+    useOwnProxies:document.getElementById('pOwn').checked,
+    proxiesText:document.getElementById('pList').value
+  });
+  toast('Proxy settings saved ✓ (restart campaign to apply)');
+}
+
+// ---- owner license manager ----
+async function loadLicenses(){
+  if(!ME || !ME.owner) return;
+  try {
+    const d=await api('/api/web/licenses');
+    document.getElementById('keyList').innerHTML=d.available.length
+      ? d.available.map(k=>`<div class="acc"><span class="ign">${esc(k.license)}</span><span class="meta">${esc(k.duration)}d</span><button class="btn-x" onclick="delKey('${esc(k.license)}')">del</button></div>`).join('')
+      : '<div class="empty">No available keys.</div>';
+    document.getElementById('usedList').innerHTML=d.used.length
+      ? d.used.map(k=>{ const u=d.users&&d.users[k.user_id]; return `<div class="acc"><span class="dot on"></span><span class="ign">${esc(k.license)}</span><span class="meta">${u?esc(u):esc(k.user_id)} · ${k.expiry?new Date(parseInt(k.expiry)).toLocaleDateString():'—'}</span><button class="btn-x" onclick="revokeKey('${esc(k.license)}')">revoke</button></div>`; }).join('')
+      : '<div class="empty">No active subscriptions.</div>';
+  } catch(e){}
+}
+async function createLicense(){
+  try {
+    const r=await api('/api/web/licenses/create',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({duration:document.getElementById('licDays').value,count:document.getElementById('licCount').value})});
+    toast(r.created.length+' key(s) created ✓');
+    loadLicenses();
+  } catch(e){ toast(String(e.message||e),true); }
+}
+async function delKey(k){ await api('/api/web/licenses/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({license:k})}); toast('deleted'); loadLicenses(); }
+async function revokeKey(k){ await api('/api/web/licenses/revoke',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({license:k})}); toast('revoked'); loadLicenses(); }
+</script>
+</body>
+</html>
+
+
+
+

@@ -1,0 +1,48 @@
+{
+  "autobuy": {
+    "enabled": true,
+    "monitoringInterval": 60000,
+    "payments": {
+      "provider": "litecoinspace",
+      "ipnUrl": "https://your-domain.com/webhook/nowpayments",
+      "minAmount": 0.001,
+      "requiredConfirmations": 2,
+      "addressExpiry": 3600
+    },
+    "plans": {
+      "monthly": {
+        "label": "Monthly",
+        "priceUsd": 10.0,
+        "priceLtc": 0,
+        "days": 30
+      },
+      "lifetime": {
+        "label": "Lifetime",
+        "priceUsd": 25,
+        "days": 0
+      }
+    },
+    "wallet": {
+      "dbPath": "/root/autosecure/db/autobuy.db",
+      "currency": "LTC",
+      "mnemonic": "REPLACE_WITH_YOUR_24_WORD_MNEMONIC"
+    },
+    "discord": {
+      "notifyChannel": "YOUR_PURCHASE_NOTIFY_CHANNEL_ID",
+      "purchaseLogChannel": "YOUR_PURCHASE_LOG_CHANNEL_ID",
+      "notifyRole": "YOUR_ROLE_ID",
+      "claimGuildId": "YOUR_GUILD_ID",
+      "autoDeliver": true
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+

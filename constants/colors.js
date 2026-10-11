@@ -1,0 +1,15 @@
+module.exports = {
+  primary: 0x5865F2,
+  success: 0x57F287,
+  warning: 0xFEE75C,
+  danger: 0xED4245,
+  error: 0xED4245,
+  blurple: 0x5865F2,
+  green: 0x57F287,
+  red: 0xED4245,
+  yellow: 0xFEE75C,
+  white: 0xFFFFFF,
+  black: 0x000000,
+  grey: 0x96989D,
+  gray: 0x96989D,
+};
